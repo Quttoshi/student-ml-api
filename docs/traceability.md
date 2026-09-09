@@ -23,11 +23,11 @@ workflow has completed — values below are placeholders until then.
 
 | Field | Value |
 |---|---|
-| PR | # |
-| Merge Commit | |
+| PR | #4 (`feature/model-metadata`) |
+| Merge Commit | `e56749f6a70b74d88c8895cbdeb3bb5d058eaaca` |
 | Git Tag | v1.1.0 |
-| Docker Image | `ghcr.io/quttoshi/student-ml-api:1.1.0` |
-| Image Digest | `sha256:` |
+| Docker Image | `ghcr.io/quttoshi/student-ml-api:1.1.0` (also tagged `latest`) |
+| Image Digest | `sha256:bb3fe1af846fa8247c7a6e53be158aac58296291957e182e719e3e107e3982c2` |
 
 ## How to fill these in
 
