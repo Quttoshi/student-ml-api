@@ -1,0 +1,122 @@
+name: Release
+
+# Runs only when a semantic-version tag (v1.0.0, v1.1.0, v2.0.0, ...) is
+# pushed - i.e. after a Pull Request has already been reviewed, tested by
+# CI, and merged into main. This workflow is what actually publishes the
+# versioned artifact; the CI workflow above never does (see Part 22).
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+env:
+  IMAGE_NAME: student-ml-api
+  REGISTRY: ghcr.io
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run unit tests
+        run: pytest -v
+
+  release:
+    name: Build, Version & Publish
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # --- Derive the semantic version from the pushed Git tag ----------
+      # The tag that triggered this run is v1.0.0; the Docker/image
+      # version must be 1.0.0. This is computed here, never hard-coded.
+      - name: Derive version from Git tag
+        id: version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      # GHCR requires the image path to be lowercase; GitHub usernames /
+      # org names are not guaranteed to be.
+      - name: Compute lowercase image owner
+        id: owner
+        run: |
+          echo "lc=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Set build date
+        id: date
+        run: echo "value=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Derive the full tag list automatically: the semantic version,
+      # `latest`, and the short commit SHA (Part 24). Nothing here is
+      # hand-typed per release.
+      - name: Extract Docker image tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ steps.owner.outputs.lc }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ steps.version.outputs.tag }}
+            type=raw,value=latest
+            type=sha,prefix=,format=short
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            APP_VERSION=${{ steps.version.outputs.version }}
+            GIT_COMMIT=${{ github.sha }}
+            BUILD_DATE=${{ steps.date.outputs.value }}
+            REPOSITORY=${{ github.server_url }}/${{ github.repository }}
+
+      # Human-readable traceability record for this release: PR -> merge
+      # commit -> Git tag -> Docker image tag -> Docker image digest
+      # (Part 21). The PR number is not directly available from a tag
+      # push event, so it must be looked up from the merge commit message
+      # / GitHub UI and recorded in docs/traceability.md.
+      - name: Publish traceability summary
+        run: |
+          {
+            echo "### Release Traceability"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Git Tag | \`${{ steps.version.outputs.tag }}\` |"
+            echo "| Merge Commit SHA | \`${{ github.sha }}\` |"
+            echo "| Derived Version | \`${{ steps.version.outputs.version }}\` |"
+            echo "| Docker Image Tags | \`${{ steps.meta.outputs.tags }}\` |"
+            echo "| Docker Image Digest | \`${{ steps.build.outputs.digest }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
