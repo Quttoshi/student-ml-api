@@ -20,7 +20,8 @@ def test_health_returns_healthy_status():
     body = response.json()
     assert body["status"] == "healthy"
     assert body["application"] == "student-ml-api"
-    assert body["version"] == APP_VERSION
+    assert body["application_version"] == APP_VERSION
+    assert body["model_version"] == "model-1"
 
 
 def test_predict_returns_correct_prediction():
