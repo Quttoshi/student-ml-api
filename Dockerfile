@@ -4,20 +4,6 @@
 # Explicit, pinned base image (never :latest) for reproducible builds.
 FROM python:3.12.10-slim
 
-# OCI image metadata / labels for traceability (overridable at build time).
-# See Part 23: application version, git commit, repository, build date.
-ARG APP_VERSION=unknown
-ARG GIT_COMMIT=unknown
-ARG BUILD_DATE=unknown
-ARG REPOSITORY=unknown
-
-LABEL org.opencontainers.image.title="student-ml-api" \
-      org.opencontainers.image.version="${APP_VERSION}" \
-      org.opencontainers.image.revision="${GIT_COMMIT}" \
-      org.opencontainers.image.source="${REPOSITORY}" \
-      org.opencontainers.image.created="${BUILD_DATE}" \
-      org.opencontainers.image.description="Student ML inference API (FastAPI)"
-
 # Run as a non-root user (production best practice).
 RUN addgroup --system app && adduser --system --ingroup app app
 
@@ -32,6 +18,25 @@ RUN pip install --no-cache-dir -r requirements.txt
 # this layer (and later), not the dependency-install layer above.
 COPY app.py .
 COPY VERSION .
+
+# OCI image metadata / labels for traceability (overridable at build time).
+# See Part 23: application version, git commit, repository, build date.
+# Declared *after* the dependency/source layers above, on purpose: these
+# ARGs (especially GIT_COMMIT and BUILD_DATE) change on every single build,
+# so any layer that depends on them can never be cache-hit. Placing them
+# this late means only these last few layers pay that cost, instead of
+# invalidating (and re-running) the expensive pip install above every time.
+ARG APP_VERSION=unknown
+ARG GIT_COMMIT=unknown
+ARG BUILD_DATE=unknown
+ARG REPOSITORY=unknown
+
+LABEL org.opencontainers.image.title="student-ml-api" \
+      org.opencontainers.image.version="${APP_VERSION}" \
+      org.opencontainers.image.revision="${GIT_COMMIT}" \
+      org.opencontainers.image.source="${REPOSITORY}" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.description="Student ML inference API (FastAPI)"
 
 # Re-expose the build args as runtime env vars so the running app/tools
 # can introspect exactly what produced this image.

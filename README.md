@@ -96,4 +96,5 @@ a `docker pull` of an already-built, already-tested image, not a rebuild.
 - [`docs/traceability.md`](docs/traceability.md) — PR → commit → tag → image → digest records
 - [`docs/failure-analysis.md`](docs/failure-analysis.md) — deliberate failure/diagnosis log
 - [`docs/rollback.md`](docs/rollback.md) — rollback & artifact-reproducibility walkthrough
+- [`docs/build-cache.md`](docs/build-cache.md) — Docker layer caching experiment and a caching bug found & fixed
 - [`docs/viva-answers.md`](docs/viva-answers.md) — prepared answers to the viva questions
