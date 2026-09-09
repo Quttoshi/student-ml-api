@@ -1,12 +1,4 @@
-"""student-ml-api
-
-A minimal FastAPI inference service used to demonstrate a production-style
-MLOps CI/CD workflow (Pull Requests, GitHub Actions CI, Docker, and a
-container registry release pipeline).
-
-The prediction logic itself is intentionally trivial -- the point of this
-exercise is the delivery pipeline, not model quality.
-"""
+"""student-ml-api: FastAPI inference service."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -20,18 +12,11 @@ from pydantic import BaseModel, Field
 APP_NAME = "student-ml-api"
 VERSION_FILE = Path(__file__).resolve().parent / "VERSION"
 
-# The model itself doesn't change with every API release, so its version is
-# tracked independently of APP_VERSION (see docs/viva-answers.md, Q15).
+# Tracked independently of APP_VERSION - the model doesn't change on every API release.
 MODEL_VERSION = "model-1"
 
 
 def get_version() -> str:
-    """Read the application version from the VERSION file.
-
-    Reading the version from a single file (rather than hard-coding it in
-    source) keeps VERSION as the one source of truth that both the app and
-    the release workflow agree on.
-    """
     try:
         return VERSION_FILE.read_text(encoding="utf-8").strip()
     except FileNotFoundError:
@@ -44,27 +29,16 @@ app = FastAPI(title=APP_NAME, version=APP_VERSION)
 
 
 class PredictRequest(BaseModel):
-    """Request body for POST /predict."""
-
     value: float = Field(..., description="Numeric input to run the prediction on")
 
 
 def _clean_number(value: float) -> float | int:
-    """Return an int when the float is a whole number, else the float.
-
-    Keeps JSON responses looking like {"input": 10} instead of
-    {"input": 10.0} for whole-number inputs, matching the API contract.
-    """
+    """Return int for whole numbers so {"input": 10} isn't {"input": 10.0}."""
     return int(value) if value.is_integer() else value
 
 
 @app.get("/health")
 def health() -> dict:
-    """Liveness/readiness probe.
-
-    Surfaces application and model versions separately, since they can
-    change independently of one another.
-    """
     return {
         "status": "healthy",
         "application": APP_NAME,
@@ -75,13 +49,6 @@ def health() -> dict:
 
 @app.post("/predict")
 def predict(payload: PredictRequest) -> dict:
-    """Return a simple mathematical prediction for the given input.
-
-    prediction = value * 2
-
-    This is a placeholder for a real model inference call; the exercise
-    is about the delivery pipeline around the API, not the model itself.
-    """
     prediction = payload.value * 2
     return {
         "input": _clean_number(payload.value),
@@ -91,11 +58,6 @@ def predict(payload: PredictRequest) -> dict:
 
 @app.exception_handler(RequestValidationError)
 async def validation_error_handler(_, exc: RequestValidationError) -> JSONResponse:
-    """Return a clear 422 payload for missing/invalid /predict input.
-
-    FastAPI/Pydantic already reject missing or non-numeric "value" fields
-    automatically; this handler just normalizes the error shape.
-    """
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         content={
