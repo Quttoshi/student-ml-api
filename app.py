@@ -20,6 +20,10 @@ from pydantic import BaseModel, Field
 APP_NAME = "student-ml-api"
 VERSION_FILE = Path(__file__).resolve().parent / "VERSION"
 
+# The model itself doesn't change with every API release, so its version is
+# tracked independently of APP_VERSION (see docs/viva-answers.md, Q15).
+MODEL_VERSION = "model-1"
+
 
 def get_version() -> str:
     """Read the application version from the VERSION file.
@@ -56,11 +60,16 @@ def _clean_number(value: float) -> float | int:
 
 @app.get("/health")
 def health() -> dict:
-    """Liveness/readiness probe."""
+    """Liveness/readiness probe.
+
+    Surfaces application and model versions separately, since they can
+    change independently of one another.
+    """
     return {
         "status": "healthy",
         "application": APP_NAME,
-        "version": APP_VERSION,
+        "application_version": APP_VERSION,
+        "model_version": MODEL_VERSION,
     }
 
 
