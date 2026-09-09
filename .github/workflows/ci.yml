@@ -1,8 +1,5 @@
 name: CI
 
-# Runs on every Pull Request targeting main, and optionally on pushes to
-# feature/development branches so contributors get fast feedback before
-# they even open a PR. It never publishes anything - see Part 22.
 on:
   pull_request:
     branches: [main]
@@ -43,8 +40,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Build only - this job intentionally never logs in to a registry
-      # and never pushes an image. That is the release workflow's job.
       - name: Build Docker image (no push)
         uses: docker/build-push-action@v6
         with:
