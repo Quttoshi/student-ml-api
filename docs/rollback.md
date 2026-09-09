@@ -25,6 +25,23 @@ and built once in the release workflow are the exact bytes running here —
 nothing was recompiled, re-`pip install`ed, or re-interpreted differently on
 this machine.
 
+**Evidence (actually run):**
+
+```
+$ docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/quttoshi/student-ml-api:1.0.0
+ghcr.io/quttoshi/student-ml-api@sha256:0c2678c5cb6a532fba9e3cd37bdfa87b06d0a4321c4f811df2de19c74da29409
+
+$ docker rmi ghcr.io/quttoshi/student-ml-api:1.0.0
+Untagged: ghcr.io/quttoshi/student-ml-api:1.0.0
+Deleted: sha256:0c2678c5cb6a532fba9e3cd37bdfa87b06d0a4321c4f811df2de19c74da29409
+
+$ docker pull ghcr.io/quttoshi/student-ml-api:1.0.0
+Digest: sha256:0c2678c5cb6a532fba9e3cd37bdfa87b06d0a4321c4f811df2de19c74da29409
+Status: Downloaded newer image for ghcr.io/quttoshi/student-ml-api:1.0.0
+```
+
+Same digest before deletion and after re-pulling — byte-identical artifact.
+
 ## Part 20 — Rollback exercise
 
 Assume `1.1.0` has a production issue. Without touching source code and
@@ -37,6 +54,24 @@ docker run -d --name student-ml-api -p 5000:5000 ghcr.io/quttoshi/student-ml-api
 curl http://localhost:5000/health
 # {"status": "healthy", "application": "student-ml-api", "version": "1.0.0"}
 ```
+
+**Evidence (actually run):** before rollback, the running container
+(`1.1.0`) reported:
+
+```json
+{"status":"healthy","application":"student-ml-api","application_version":"1.1.0","model_version":"model-1"}
+```
+
+After removing it, deleting the local `1.0.0` image entirely, and pulling
+`1.0.0` fresh from GHCR:
+
+```json
+{"status":"healthy","application":"student-ml-api","version":"1.0.0"}
+```
+
+Correctly back to the old response shape (`version`, no
+`application_version`/`model_version`) — confirming this is genuinely the
+old code running, not a hybrid or a rebuild.
 
 The registry keeps every previously released, previously tested version
 available side by side:
