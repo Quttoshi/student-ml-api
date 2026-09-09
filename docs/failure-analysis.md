@@ -16,7 +16,7 @@ image.
 assert data["status"] == "wrong"
 ```
 
-Pushing this to the `feature/prediction-api` branch made the **CI** workflow's
+Pushing this to the `feature/ci-demo` branch made the **CI** workflow's
 `Unit Tests` job fail, which failed the whole pull request check.
 
 **Root Cause**
@@ -29,7 +29,7 @@ longer matches what `GET /health` actually returns.
   `AssertionError: assert 'healthy' == 'wrong'`
 - GitHub Actions: PR run shows the `Unit Tests` job with a red ❌ and the
   `CI` check on the PR reporting **Failing**.
-  *(Screenshot/link recorded once pushed — see PR #1.)*
+  *(Screenshot/link recorded once pushed — see PR #2.)*
 
 **Correction**
 Reverted the assertion to:
