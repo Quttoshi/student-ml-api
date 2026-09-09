@@ -78,7 +78,7 @@ docker inspect student-ml-api:1.0.0 --format '{{json .Config.Labels}}'
 - A release is triggered by pushing a semantic-version Git tag (`vX.Y.Z`):
   `.github/workflows/release.yml` derives `X.Y.Z` from the tag automatically
   (never hard-coded), builds the Docker image, and pushes it to
-  `ghcr.io/<owner>/student-ml-api` tagged `X.Y.Z`, `latest`, and the short
+  `ghcr.io/quttoshi/student-ml-api` tagged `X.Y.Z`, `latest`, and the short
   commit SHA.
 - `.github/workflows/ci.yml` runs on every Pull Request into `main`: it
   installs dependencies, runs `pytest`, and does a build-only Docker

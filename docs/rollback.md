@@ -7,10 +7,10 @@
 docker rmi student-ml-api:1.0.0
 
 # Pull the exact same artifact back from the registry
-docker pull ghcr.io/<owner>/student-ml-api:1.0.0
+docker pull ghcr.io/quttoshi/student-ml-api:1.0.0
 
 # Run it and confirm it behaves identically
-docker run -d --name student-ml-api -p 5000:5000 ghcr.io/<owner>/student-ml-api:1.0.0
+docker run -d --name student-ml-api -p 5000:5000 ghcr.io/quttoshi/student-ml-api:1.0.0
 curl http://localhost:5000/health
 ```
 
@@ -32,8 +32,8 @@ without rebuilding anything:
 
 ```bash
 docker rm -f student-ml-api
-docker pull ghcr.io/<owner>/student-ml-api:1.0.0
-docker run -d --name student-ml-api -p 5000:5000 ghcr.io/<owner>/student-ml-api:1.0.0
+docker pull ghcr.io/quttoshi/student-ml-api:1.0.0
+docker run -d --name student-ml-api -p 5000:5000 ghcr.io/quttoshi/student-ml-api:1.0.0
 curl http://localhost:5000/health
 # {"status": "healthy", "application": "student-ml-api", "version": "1.0.0"}
 ```

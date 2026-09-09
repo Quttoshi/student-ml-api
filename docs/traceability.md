@@ -13,11 +13,11 @@ workflow has completed — values below are placeholders until then.
 
 | Field | Value |
 |---|---|
-| PR | # |
-| Merge Commit | |
+| PR | #1 (`feature/prediction-api` — app, tests, Dockerfile, CI/release workflows), #2 (`feature/ci-demo` — mandatory Part 6 deliberate-failure demonstration) |
+| Merge Commit | `d6d740f333a80097d3ca3d475d0be28314c0bff1` (merge of PR #2, tip of `main` at the time `v1.0.0` was tagged) |
 | Git Tag | v1.0.0 |
-| Docker Image | `ghcr.io/<owner>/student-ml-api:1.0.0` |
-| Image Digest | `sha256:` |
+| Docker Image | `ghcr.io/quttoshi/student-ml-api:1.0.0` |
+| Image Digest | `sha256:0c2678c5cb6a532fba9e3cd37bdfa87b06d0a4321c4f811df2de19c74da29409` |
 
 ## v1.1.0
 
@@ -26,7 +26,7 @@ workflow has completed — values below are placeholders until then.
 | PR | # |
 | Merge Commit | |
 | Git Tag | v1.1.0 |
-| Docker Image | `ghcr.io/<owner>/student-ml-api:1.1.0` |
+| Docker Image | `ghcr.io/quttoshi/student-ml-api:1.1.0` |
 | Image Digest | `sha256:` |
 
 ## How to fill these in
@@ -38,5 +38,5 @@ workflow has completed — values below are placeholders until then.
   (the workflow writes a "Release Traceability" table via
   `$GITHUB_STEP_SUMMARY`), or via:
   ```bash
-  docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/<owner>/student-ml-api:1.0.0
+  docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/quttoshi/student-ml-api:1.0.0
   ```
