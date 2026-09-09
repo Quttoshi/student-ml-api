@@ -1,9 +1,5 @@
 name: Release
 
-# Runs only when a semantic-version tag (v1.0.0, v1.1.0, v2.0.0, ...) is
-# pushed - i.e. after a Pull Request has already been reviewed, tested by
-# CI, and merged into main. This workflow is what actually publishes the
-# versioned artifact; the CI workflow above never does (see Part 22).
 on:
   push:
     tags:
@@ -45,9 +41,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # --- Derive the semantic version from the pushed Git tag ----------
-      # The tag that triggered this run is v1.0.0; the Docker/image
-      # version must be 1.0.0. This is computed here, never hard-coded.
       - name: Derive version from Git tag
         id: version
         run: |
@@ -55,8 +48,7 @@ jobs:
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
 
-      # GHCR requires the image path to be lowercase; GitHub usernames /
-      # org names are not guaranteed to be.
+      # GHCR requires the image path to be lowercase
       - name: Compute lowercase image owner
         id: owner
         run: |
@@ -76,9 +68,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Derive the full tag list automatically: the semantic version,
-      # `latest`, and the short commit SHA (Part 24). Nothing here is
-      # hand-typed per release.
       - name: Extract Docker image tags
         id: meta
         uses: docker/metadata-action@v5
@@ -102,11 +91,6 @@ jobs:
             BUILD_DATE=${{ steps.date.outputs.value }}
             REPOSITORY=${{ github.server_url }}/${{ github.repository }}
 
-      # Human-readable traceability record for this release: PR -> merge
-      # commit -> Git tag -> Docker image tag -> Docker image digest
-      # (Part 21). The PR number is not directly available from a tag
-      # push event, so it must be looked up from the merge commit message
-      # / GitHub UI and recorded in docs/traceability.md.
       - name: Publish traceability summary
         run: |
           {

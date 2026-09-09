@@ -1,11 +1,3 @@
-"""Automated tests for student-ml-api.
-
-Covers the four cases required by the assignment:
-1. GET  /health
-2. POST /predict - successful prediction
-3. POST /predict - missing input
-4. POST /predict - invalid input
-"""
 from fastapi.testclient import TestClient
 
 from app import APP_VERSION, app
