@@ -93,6 +93,7 @@ a `docker pull` of an already-built, already-tested image, not a rebuild.
 ## Project docs
 
 - [`docs/branch-protection.md`](docs/branch-protection.md) — `main` branch protection settings
+- [`docs/pipeline-design-notes.md`](docs/pipeline-design-notes.md) — merge strategy justification and CI/release separation rationale
 - [`docs/traceability.md`](docs/traceability.md) — PR → commit → tag → image → digest records
 - [`docs/failure-analysis.md`](docs/failure-analysis.md) — deliberate failure/diagnosis log
 - [`docs/rollback.md`](docs/rollback.md) — rollback & artifact-reproducibility walkthrough
