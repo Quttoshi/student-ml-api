@@ -79,7 +79,7 @@ everything (`COPY . .`) up front invalidates the dependency-install layer on
 every single source change, forcing a full reinstall every build.
 
 **13. How would you rollback from version `1.1.0` to `1.0.0`?**
-`docker pull ghcr.io/<owner>/student-ml-api:1.0.0` followed by
+`docker pull ghcr.io/quttoshi/student-ml-api:1.0.0` followed by
 `docker run` (after removing/stopping the `1.1.0` container). No code
 change, no rebuild — just running a previously published, already-tested
 image tag. See `docs/rollback.md`.
